@@ -1,758 +1,1016 @@
-```react
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Search, 
-  ShoppingCart, 
-  User, 
-  Menu, 
-  X, 
-  ChevronRight, 
-  Star, 
-  Filter, 
-  CheckCircle, 
-  Truck, 
-  RefreshCcw, 
-  ShieldCheck, 
-  CreditCard, 
-  Smartphone, 
-  Wallet,
-  ArrowLeft,
-  Trash2,
-  Plus,
-  Minus
-} from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import {
+  Search, ShoppingCart, User, ChevronDown, ChevronRight, ChevronLeft,
+  Star, StarHalf, Heart, Package, Shield, RotateCcw, Truck, Phone,
+  MapPin, Mail, Menu, X, SlidersHorizontal, Tag, Zap, Home, Monitor,
+  Shirt, Wrench, Baby, Check, Minus, Plus, Trash2, ArrowRight,
+  CreditCard, Smartphone, Banknote, Facebook, Instagram, Youtube,
+  TrendingUp, Award, Clock, ChevronUp, Bell, Gift, Percent, LogIn
+} from "lucide-react";
 
-/**
- * MOCK DATA: PRODUCTS
- */
-const PRODUCTS = [
-  { id: 1, name: "Pametni televizor Samsung 55\" QLED 4K", category: "Elektronika", price: 649.99, rating: 4.8, image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&q=80&w=400", stock: true, brand: "Samsung" },
-  { id: 2, name: "Pralni stroj Bosch Serie 6", category: "Gospodinjski aparati", price: 529.00, rating: 4.5, image: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?auto=format&fit=crop&q=80&w=400", stock: true, brand: "Bosch" },
-  { id: 3, name: "Moška športna jopna Nike Air", category: "Moda", price: 85.00, rating: 4.2, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=400", stock: true, brand: "Nike" },
-  { id: 4, name: "Vrtna garnitura Riva (5 kosov)", category: "Dom in vrt", price: 299.99, rating: 4.0, image: "https://images.unsplash.com/photo-1581404917879-53e1925d3060?auto=format&fit=crop&q=80&w=400", stock: true, brand: "Riva" },
-  { id: 5, name: "LEGO Technic Ferrari 488 GTE", category: "Igrače", price: 179.90, rating: 5.0, image: "https://images.unsplash.com/photo-1585366119957-e57332321c7c?auto=format&fit=crop&q=80&w=400", stock: false, brand: "LEGO" },
-  { id: 6, name: "Prenosnik Apple MacBook Air M2", category: "Elektronika", price: 1199.00, rating: 4.9, image: "https://images.unsplash.com/photo-1611186871348-b1ec696e5237?auto=format&fit=crop&q=80&w=400", stock: true, brand: "Apple" },
-  { id: 7, name: "Kavni aparat De'Longhi Magnifica S", category: "Gospodinjski aparati", price: 349.00, rating: 4.7, image: "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&q=80&w=400", stock: true, brand: "De'Longhi" },
-  { id: 8, name: "Električna kosilnica Makita", category: "Dom in vrt", price: 159.00, rating: 4.4, image: "https://images.unsplash.com/photo-1592819695396-064b9570a500?auto=format&fit=crop&q=80&w=400", stock: true, brand: "Makita" },
+// ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
+const G = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#F0F4F8;color:#1A202C;}
+    :root{
+      --blue:#1557BF;--blue-dark:#0D3E8F;--blue-light:#EBF2FF;
+      --orange:#FF6B00;--orange-light:#FFF3EB;
+      --teal:#00A99D;
+      --gray-50:#F8FAFC;--gray-100:#F0F4F8;--gray-200:#E2E8F0;
+      --gray-400:#94A3B8;--gray-600:#475569;--gray-800:#1E293B;
+      --white:#FFFFFF;--shadow:0 2px 16px rgba(0,0,0,.08);
+    }
+    .font-syne{font-family:'Syne',sans-serif;}
+    .hover-lift{transition:transform .2s,box-shadow .2s;}
+    .hover-lift:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(21,87,191,.15);}
+    .hover-orange:hover{background:var(--orange)!important;border-color:var(--orange)!important;color:#fff!important;}
+    .transition-all{transition:all .22s ease;}
+    .badge-new{background:linear-gradient(135deg,#22C55E,#16A34A);}
+    .badge-sale{background:linear-gradient(135deg,#EF4444,#DC2626);}
+    .badge-hot{background:linear-gradient(135deg,var(--orange),#E65100);}
+    @keyframes slideIn{from{transform:translateX(-12px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes fadeUp{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .anim-slide{animation:slideIn .4s ease both;}
+    .anim-fade{animation:fadeUp .4s ease both;}
+    ::-webkit-scrollbar{width:6px;height:6px;}
+    ::-webkit-scrollbar-track{background:#F0F4F8;}
+    ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px;}
+    input,select{font-family:inherit;}
+    .star-filled{color:#FBBF24;fill:#FBBF24;}
+    .star-empty{color:#E2E8F0;fill:#E2E8F0;}
+    .slider-thumb::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--blue);border-radius:50%;cursor:pointer;}
+    .slider-thumb{-webkit-appearance:none;height:4px;background:linear-gradient(to right,var(--blue) var(--val,50%),#E2E8F0 var(--val,50%));border-radius:4px;outline:none;width:100%;}
+  `}</style>
+);
+
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const CATS = [
+  { id:"elektronika", label:"Elektronika",  icon:<Monitor size={16}/>,  sub:["Telefoni","Prenosniki","TV & Avdio","Tablice","Fotoaparati"] },
+  { id:"dom",         label:"Dom in vrt",   icon:<Home size={16}/>,     sub:["Pohištvo","Razsvetljava","Vrt","Dekoracija"] },
+  { id:"moda",        label:"Moda",         icon:<Shirt size={16}/>,    sub:["Ženska moda","Moška moda","Obutev","Torbice"] },
+  { id:"aparati",     label:"Gospodinjski", icon:<Wrench size={16}/>,   sub:["Kuhinja","Čiščenje","Pranje","Hlajenje"] },
+  { id:"igrace",      label:"Igrače",       icon:<Baby size={16}/>,     sub:["Dojenčki","LEGO","Outdoor","Igre"] },
 ];
 
-const CATEGORIES = ['Vse', 'Elektronika', 'Dom in vrt', 'Moda', 'Gospodinjski aparati', 'Igrače'];
+const BRANDS = ["Samsung","Apple","Sony","LG","Philips","Bosch","Tefal","Nike"];
 
-export default function App() {
-  const [cart, setCart] = useState([]);
-  const [view, setView] = useState('home'); // 'home', 'checkout', 'success'
-  const [selectedCategory, setSelectedCategory] = useState('Vse');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [maxPrice, setMaxPrice] = useState(1500);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showCartDrawer, setShowCartDrawer] = useState(false);
+const PRODUCTS = [
+  { id:1,  name:"Samsung Galaxy S24 Ultra 256GB",          cat:"elektronika", brand:"Samsung", price:1199.99, oldPrice:1399.99, rating:4.8, reviews:342, badge:"Akcija",  img:"📱",  stock:true,  isNew:false },
+  { id:2,  name:"Apple MacBook Air M3 13\"",               cat:"elektronika", brand:"Apple",   price:1449.00, oldPrice:null,    rating:4.9, reviews:218, badge:"Novo",    img:"💻",  stock:true,  isNew:true  },
+  { id:3,  name:"Sony WH-1000XM5 brezžične slušalke",      cat:"elektronika", brand:"Sony",    price:289.00,  oldPrice:379.00,  rating:4.7, reviews:567, badge:"Akcija",  img:"🎧",  stock:true,  isNew:false },
+  { id:4,  name:"LG OLED55C3 55\" 4K Smart TV",            cat:"elektronika", brand:"LG",      price:899.00,  oldPrice:1099.00, rating:4.6, reviews:134, badge:"Hot",     img:"📺",  stock:true,  isNew:false },
+  { id:5,  name:"Philips Airfryer XXL 7.3L",               cat:"aparati",     brand:"Philips", price:199.99,  oldPrice:249.00,  rating:4.5, reviews:891, badge:"Akcija",  img:"🍳",  stock:true,  isNew:false },
+  { id:6,  name:"Bosch Serie 6 pralni stroj 9kg",          cat:"aparati",     brand:"Bosch",   price:649.00,  oldPrice:null,    rating:4.7, reviews:203, badge:null,      img:"🫧",  stock:true,  isNew:false },
+  { id:7,  name:"Nike Air Max 270 moški copati",           cat:"moda",        brand:"Nike",    price:149.99,  oldPrice:179.99,  rating:4.4, reviews:445, badge:"Akcija",  img:"👟",  stock:true,  isNew:false },
+  { id:8,  name:"LEGO Technic Bugatti Chiron 3599 kos",    cat:"igrace",      brand:"LEGO",    price:329.99,  oldPrice:379.00,  rating:4.9, reviews:156, badge:"Novo",    img:"🧱",  stock:true,  isNew:true  },
+  { id:9,  name:"Tefal Easy Fry & Grill XXL",              cat:"aparati",     brand:"Tefal",   price:139.00,  oldPrice:169.00,  rating:4.3, reviews:678, badge:null,      img:"🥘",  stock:false, isNew:false },
+  { id:10, name:"Samsung Galaxy Tab S9 FE WiFi",           cat:"elektronika", brand:"Samsung", price:499.00,  oldPrice:569.00,  rating:4.5, reviews:289, badge:"Akcija",  img:"📱",  stock:true,  isNew:false },
+  { id:11, name:"Lesena jedilna miza 180x90 cm",           cat:"dom",         brand:"Philips", price:389.00,  oldPrice:null,    rating:4.2, reviews:87,  badge:null,      img:"🪑",  stock:true,  isNew:false },
+  { id:12, name:"Nike Tech Fleece ženska jopica",          cat:"moda",        brand:"Nike",    price:89.99,   oldPrice:109.99,  rating:4.6, reviews:312, badge:"Akcija",  img:"🧥",  stock:true,  isNew:false },
+];
 
-  // Filter Logic
-  const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter(p => {
-      const matchesCategory = selectedCategory === 'Vse' || p.category === selectedCategory;
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesPrice = p.price <= maxPrice;
-      return matchesCategory && matchesSearch && matchesPrice;
-    });
-  }, [selectedCategory, searchQuery, maxPrice]);
+const BANNERS = [
+  { id:0, title:"Poletna razprodaja", sub:"Do –40% na elektroniko", cta:"Odkrij ponudbe", bg:"linear-gradient(135deg,#1557BF 0%,#0D3E8F 100%)", accent:"#FF6B00", emoji:"⚡" },
+  { id:1, title:"Novi prihodi",       sub:"Sveže kolekcije mode 2025", cta:"Nakupuj zdaj",   bg:"linear-gradient(135deg,#00A99D 0%,#007A70 100%)", accent:"#FBBF24", emoji:"✨" },
+  { id:2, title:"Brezplačna dostava", sub:"Za naročila nad 49 €",       cta:"Izkoristi ponudbo", bg:"linear-gradient(135deg,#FF6B00 0%,#E65100 100%)", accent:"#FFF",    emoji:"🚀" },
+];
 
-  const addToCart = (product) => {
-    setCart(prev => {
-      const exists = prev.find(item => item.id === product.id);
-      if (exists) {
-        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
-      }
-      return [...prev, { ...product, qty: 1 }];
-    });
-    setShowCartDrawer(true);
-  };
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+const Stars = ({ rating }) => (
+  <span style={{display:"flex",gap:1,alignItems:"center"}}>
+    {[1,2,3,4,5].map(i=>(
+      <Star key={i} size={12}
+        className={i<=Math.floor(rating)?"star-filled":"star-empty"}
+        style={i<=Math.floor(rating)?{color:"#FBBF24",fill:"#FBBF24"}:{color:"#E2E8F0",fill:"#E2E8F0"}}
+      />
+    ))}
+  </span>
+);
 
-  const removeFromCart = (id) => setCart(prev => prev.filter(item => item.id !== id));
-  
-  const updateQty = (id, delta) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, item.qty + delta);
-        return { ...item, qty: newQty };
-      }
-      return item;
-    }));
-  };
+const fmt = n => n.toFixed(2).replace(".",",") + " €";
+const disc = (p,o) => o ? Math.round((1-p/o)*100) : 0;
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+// ─── HEADER ───────────────────────────────────────────────────────────────────
+const Header = ({ cartCount, wishCount, setPage, page }) => {
+  const [q, setQ] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-slate-900 font-sans">
-      {/* Top Bar */}
-      <div className="bg-slate-100 border-b text-[13px] py-2 px-4 hidden md:block">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-slate-600">
-          <div className="flex gap-4">
-            <span className="hover:text-blue-600 cursor-pointer">Pomoč in podpora</span>
-            <span className="hover:text-blue-600 cursor-pointer">Sledenje naročilu</span>
-            <span className="hover:text-blue-600 cursor-pointer">Trgovine</span>
-          </div>
-          <div className="flex gap-4 font-medium text-blue-700">
-            <span>Brezplačna dostava nad 50 €</span>
-          </div>
+    <header style={{position:"sticky",top:0,zIndex:200,boxShadow:"0 2px 20px rgba(0,0,0,.12)"}}>
+      {/* Top bar */}
+      <div style={{background:"var(--blue-dark)",color:"rgba(255,255,255,.85)",fontSize:12,padding:"6px 0"}}>
+        <div style={{maxWidth:1400,margin:"0 auto",padding:"0 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <span style={{display:"flex",gap:20}}>
+            <span style={{display:"flex",gap:5,alignItems:"center",cursor:"pointer",transition:"color .2s"}}
+              onMouseEnter={e=>e.currentTarget.style.color="#fff"}
+              onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.85)"}
+            ><Phone size={12}/> Pomoč: 080 123 456</span>
+            <span style={{display:"flex",gap:5,alignItems:"center",cursor:"pointer",transition:"color .2s"}}
+              onMouseEnter={e=>e.currentTarget.style.color="#fff"}
+              onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.85)"}
+            ><Package size={12}/> Sledenje naročila</span>
+          </span>
+          <span style={{display:"flex",gap:16,alignItems:"center"}}>
+            <span style={{display:"flex",gap:4,alignItems:"center"}}><Gift size={12}/> Brezplačna dostava nad 49 €</span>
+            <span style={{opacity:.4}}>|</span>
+            <span style={{display:"flex",gap:4,alignItems:"center"}}><Bell size={12}/> Prijavi se na novice</span>
+          </span>
         </div>
       </div>
 
-      {/* Main Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-4 md:gap-8">
-          <button className="md:hidden p-2" onClick={() => setShowMobileMenu(true)}>
-            <Menu className="w-6 h-6" />
-          </button>
-
+      {/* Main header */}
+      <div style={{background:"var(--blue)",padding:"14px 0"}}>
+        <div style={{maxWidth:1400,margin:"0 auto",padding:"0 20px",display:"flex",gap:20,alignItems:"center"}}>
           {/* Logo */}
-          <div 
-            className="text-2xl font-black flex items-center cursor-pointer tracking-tighter"
-            onClick={() => { setView('home'); setSelectedCategory('Vse'); }}
-          >
-            <span className="text-blue-700">SHOOP</span>
-            <span className="text-orange-500">SLO</span>
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex-1 relative max-w-2xl hidden sm:block">
-            <input 
-              type="text" 
-              placeholder="Iščite po izdelkih, znamkah..." 
-              className="w-full bg-gray-100 border-none rounded-full py-2.5 px-5 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button className="absolute right-1 top-1 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors">
-              <Search className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* User Actions */}
-          <div className="flex items-center gap-2 md:gap-6">
-            <div className="hidden lg:flex items-center gap-2 cursor-pointer group">
-              <div className="p-2 bg-slate-100 rounded-full group-hover:bg-blue-50">
-                <User className="w-5 h-5 text-slate-600 group-hover:text-blue-600" />
-              </div>
-              <div className="text-[13px] leading-tight">
-                <span className="block text-slate-400">Prijava</span>
-                <span className="font-bold">Moj račun</span>
-              </div>
+          <div onClick={()=>setPage("home")} style={{cursor:"pointer",flexShrink:0,display:"flex",alignItems:"center",gap:8}}>
+            <div style={{background:"var(--orange)",borderRadius:8,padding:"5px 9px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <span style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:800,color:"#fff",letterSpacing:-1}}>S</span>
             </div>
+            <span style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800,color:"#fff",letterSpacing:-0.5}}>Shoop<span style={{color:"var(--orange)"}}>Slo</span></span>
+          </div>
 
-            <button 
-              className="relative p-2 bg-slate-100 rounded-full hover:bg-blue-50 transition-colors"
-              onClick={() => setShowCartDrawer(true)}
-            >
-              <ShoppingCart className="w-6 h-6 text-slate-700" />
-              {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
-                  {cart.reduce((a, b) => a + b.qty, 0)}
-                </span>
-              )}
-            </button>
-            <div className="hidden md:block text-[13px]">
-              <span className="block text-slate-400">Košarica</span>
-              <span className="font-bold">{cartTotal.toFixed(2)} €</span>
+          {/* Search */}
+          <div style={{flex:1,display:"flex",maxWidth:680}}>
+            <select style={{border:"none",borderRadius:"8px 0 0 8px",padding:"0 12px",fontSize:13,fontWeight:500,background:"rgba(255,255,255,.15)",color:"#fff",outline:"none",cursor:"pointer",flexShrink:0}}>
+              <option style={{color:"#1A202C",background:"#fff"}} value="">Vse kategorije</option>
+              {CATS.map(c=><option key={c.id} style={{color:"#1A202C",background:"#fff"}} value={c.id}>{c.label}</option>)}
+            </select>
+            <div style={{flex:1,position:"relative",display:"flex"}}>
+              <input value={q} onChange={e=>setQ(e.target.value)}
+                placeholder="Poišči produkt, znamko…"
+                style={{width:"100%",padding:"11px 16px",fontSize:14,border:"none",outline:"none",background:"#fff",color:"#1A202C"}}
+              />
+              <button style={{background:"var(--orange)",border:"none",padding:"0 20px",cursor:"pointer",borderRadius:"0 8px 8px 0",display:"flex",alignItems:"center",gap:6,color:"#fff",fontSize:13,fontWeight:600,flexShrink:0}}>
+                <Search size={16}/> Iskanje
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Desktop Nav */}
-        <nav className="bg-white border-t border-b hidden md:block">
-          <div className="max-w-7xl mx-auto px-4 flex">
-            {CATEGORIES.map(cat => (
-              <button 
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`py-3 px-5 text-[14px] font-semibold transition-colors relative ${
-                  selectedCategory === cat ? 'text-blue-600' : 'text-slate-600 hover:text-blue-600'
-                }`}
+          {/* Icons */}
+          <div style={{display:"flex",gap:4,marginLeft:"auto",flexShrink:0}}>
+            {[
+              { icon:<User size={20}/>, label:"Prijava", badge:null, onClick:()=>setPage("home") },
+              { icon:<Heart size={20}/>, label:"Želje", badge:wishCount||null, onClick:()=>{} },
+              { icon:<ShoppingCart size={20}/>, label:"Košarica", badge:cartCount||null, onClick:()=>setPage("cart") },
+            ].map(({icon,label,badge,onClick})=>(
+              <button key={label} onClick={onClick} style={{
+                background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.2)",
+                borderRadius:10,padding:"8px 14px",cursor:"pointer",color:"#fff",
+                display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+                position:"relative",transition:"all .2s",minWidth:64
+              }}
+                onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.22)";}}
+                onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.12)";}}
               >
-                {cat}
-                {selectedCategory === cat && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600" />
-                )}
+                {icon}
+                <span style={{fontSize:10,fontWeight:600}}>{label}</span>
+                {badge && <span style={{position:"absolute",top:6,right:6,background:"var(--orange)",color:"#fff",borderRadius:"50%",width:17,height:17,fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>{badge}</span>}
               </button>
             ))}
           </div>
-        </nav>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {view === 'home' ? (
-          <div className="flex flex-col gap-8">
-            
-            {/* Hero Section */}
-            {selectedCategory === 'Vse' && !searchQuery && (
-              <section className="relative rounded-3xl overflow-hidden aspect-[21/9] md:aspect-[3/1] bg-blue-900 text-white">
-                <img 
-                  src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Promo Banner" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-60"
-                />
-                <div className="absolute inset-0 flex flex-col justify-center px-12 md:px-20 bg-gradient-to-r from-blue-900/80 to-transparent">
-                  <h2 className="text-3xl md:text-5xl font-black mb-4">AKCIJSKA PONUDBA<br/>DO -30%</h2>
-                  <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-md">Izkoristite neverjetne popuste na celotno kategorijo elektronike in gospodinjskih aparatov.</p>
-                  <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-bold w-fit transition-transform hover:scale-105 active:scale-95">
-                    Preveri ponudbo
-                  </button>
-                </div>
-              </section>
-            )}
-
-            <div className="flex gap-8">
-              {/* Sidebar Filters */}
-              <aside className="w-64 shrink-0 hidden lg:block">
-                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 sticky top-48">
-                  <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
-                    <Filter className="w-5 h-5 text-blue-600" /> Filtri
-                  </h3>
-                  
-                  <div className="mb-8">
-                    <label className="block text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Cenovni razpon</label>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="1500" 
-                      step="50"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(parseInt(e.target.value))}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                    />
-                    <div className="flex justify-between mt-2 font-medium text-slate-700">
-                      <span>0 €</span>
-                      <span className="text-blue-600">{maxPrice} €</span>
-                    </div>
-                  </div>
-
-                  <div className="mb-8">
-                    <label className="block text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Zaloga</label>
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                        <span className="text-slate-600 group-hover:text-blue-600 transition-colors">Na zalogi</span>
-                      </label>
-                      <label className="flex items-center gap-3 cursor-pointer group">
-                        <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                        <span className="text-slate-600 group-hover:text-blue-600 transition-colors">Hitra dostava (24h)</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">Blagovna znamka</label>
-                    <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-                      {['Samsung', 'Bosch', 'Apple', 'Nike', 'LEGO', 'Makita'].map(brand => (
-                        <label key={brand} className="flex items-center gap-3 cursor-pointer group">
-                          <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                          <span className="text-slate-600 group-hover:text-blue-600 text-sm">{brand}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </aside>
-
-              {/* Product Grid */}
-              <div className="flex-1">
-                <div className="flex justify-between items-end mb-6">
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-800">
-                      {selectedCategory === 'Vse' ? 'Vsi izdelki' : selectedCategory}
-                    </h2>
-                    <p className="text-slate-500 text-sm">{filteredProducts.length} rezultatov</p>
-                  </div>
-                  <select className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm outline-none focus:border-blue-500">
-                    <option>Sortiraj po: Priljubljenosti</option>
-                    <option>Cena: Nižja proti višji</option>
-                    <option>Cena: Višja proti nižji</option>
-                    <option>Najnovejše</option>
-                  </select>
-                </div>
-
-                {filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredProducts.map(product => (
-                      <div 
-                        key={product.id} 
-                        className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group"
-                      >
-                        <div className="relative aspect-square overflow-hidden bg-slate-50 p-4">
-                          <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
-                          />
-                          {!product.stock && (
-                            <div className="absolute top-4 left-4 bg-gray-600/90 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                              Ni na zalogi
-                            </div>
-                          )}
-                          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="bg-white p-2 rounded-full shadow-md text-slate-400 hover:text-red-500 transition-colors">
-                              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="p-5 flex-1 flex flex-col">
-                          <span className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">{product.category}</span>
-                          <h3 className="font-semibold text-slate-800 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors h-10">
-                            {product.name}
-                          </h3>
-                          
-                          <div className="flex items-center gap-1 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'text-orange-400 fill-orange-400' : 'text-slate-300'}`} />
-                            ))}
-                            <span className="text-[11px] text-slate-400 font-medium ml-1">({product.rating})</span>
-                          </div>
-
-                          <div className="mt-auto flex items-center justify-between">
-                            <div className="flex flex-col">
-                              <span className="text-2xl font-black text-slate-900 leading-tight">{product.price.toFixed(2)} €</span>
-                              <span className="text-[10px] text-slate-400 font-bold uppercase">Z vključenim DDV</span>
-                            </div>
-                            <button 
-                              onClick={() => addToCart(product)}
-                              disabled={!product.stock}
-                              className={`p-3 rounded-xl transition-all ${
-                                product.stock 
-                                ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg active:scale-90' 
-                                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                              }`}
-                            >
-                              <ShoppingCart className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-                    <Search className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">Izdelkov nismo našli</h3>
-                    <p className="text-slate-500">Poskusite spremeniti kriterije iskanja ali filtre.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : view === 'checkout' ? (
-          <CheckoutView 
-            cart={cart} 
-            total={cartTotal} 
-            onBack={() => setView('home')} 
-            onComplete={() => {
-              setCart([]);
-              setView('success');
-            }} 
-          />
-        ) : (
-          <SuccessView onHome={() => setView('home')} />
-        )}
-      </main>
-
-      {/* Trust Badges Footer */}
-      <footer className="bg-white border-t mt-20 pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="flex items-center gap-5 p-6 bg-blue-50 rounded-2xl">
-              <div className="bg-blue-600 p-3 rounded-xl text-white">
-                <Truck className="w-7 h-7" />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-800">Hitra dostava</h4>
-                <p className="text-sm text-slate-600">Brezplačno nad 50 € po celi Sloveniji.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-5 p-6 bg-orange-50 rounded-2xl">
-              <div className="bg-orange-500 p-3 rounded-xl text-white">
-                <RefreshCcw className="w-7 h-7" />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-800">14 dni za vračilo</h4>
-                <p className="text-sm text-slate-600">Brez težav vrnite izdelek, če vam ne ustreza.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-5 p-6 bg-slate-50 rounded-2xl">
-              <div className="bg-slate-800 p-3 rounded-xl text-white">
-                <ShieldCheck className="w-7 h-7" />
-              </div>
-              <div>
-                <h4 className="font-bold text-slate-800">Varno plačilo</h4>
-                <p className="text-sm text-slate-600">Najvišji varnostni standardi transakcij.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 border-b pb-12 mb-8 text-sm">
-            <div className="col-span-2 lg:col-span-1">
-              <div className="text-xl font-black mb-4">
-                <span className="text-blue-700">SHOOP</span>
-                <span className="text-orange-500">SLO</span>
-              </div>
-              <p className="text-slate-500 leading-relaxed mb-4">Vaša prva izbira za spletno nakupovanje v Sloveniji. Široka ponudba, ugodne cene.</p>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4 uppercase tracking-wider text-xs">Pomoč</h5>
-              <ul className="space-y-2 text-slate-600">
-                <li className="hover:text-blue-600 cursor-pointer">Kontaktirajte nas</li>
-                <li className="hover:text-blue-600 cursor-pointer">Pogosta vprašanja</li>
-                <li className="hover:text-blue-600 cursor-pointer">Reklamacije</li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4 uppercase tracking-wider text-xs">Informacije</h5>
-              <ul className="space-y-2 text-slate-600">
-                <li className="hover:text-blue-600 cursor-pointer">O nas</li>
-                <li className="hover:text-blue-600 cursor-pointer">Dostava</li>
-                <li className="hover:text-blue-600 cursor-pointer">Pogoji poslovanja</li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4 uppercase tracking-wider text-xs">Novice</h5>
-              <div className="flex flex-col gap-2">
-                <input type="email" placeholder="E-naslov" className="bg-slate-100 border-none rounded-lg p-2.5 outline-none" />
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">Prijava</button>
-              </div>
-            </div>
-          </div>
-          <p className="text-center text-slate-400 text-xs">© 2024 ShoopSlo d.o.o. Vse pravice pridržane.</p>
         </div>
-      </footer>
+      </div>
 
-      {/* Cart Drawer */}
-      {showCartDrawer && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowCartDrawer(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right">
-            <div className="p-6 border-b flex justify-between items-center bg-slate-50">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <ShoppingCart className="w-6 h-6 text-blue-600" /> Moja košarica
-              </h2>
-              <button onClick={() => setShowCartDrawer(false)} className="p-2 hover:bg-white rounded-full transition-colors">
-                <X className="w-6 h-6" />
+      {/* Nav */}
+      <div style={{background:"var(--white)",borderBottom:"2px solid var(--gray-200)"}}>
+        <div style={{maxWidth:1400,margin:"0 auto",padding:"0 20px",display:"flex",gap:0}}>
+          {/* All categories hamburger */}
+          <button
+            onClick={()=>setMenuOpen(!menuOpen)}
+            style={{background:"var(--orange)",border:"none",padding:"12px 20px",cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:700,flexShrink:0,borderRadius:0}}
+          >
+            <Menu size={18}/> Vse kategorije
+          </button>
+
+          {/* Category links */}
+          {CATS.map(c=>(
+            <div key={c.id}
+              onMouseEnter={()=>setActiveCategory(c.id)}
+              onMouseLeave={()=>setActiveCategory(null)}
+              style={{position:"relative"}}
+            >
+              <button
+                onClick={()=>setPage("shop")}
+                style={{
+                  background:"transparent",border:"none",padding:"12px 16px",cursor:"pointer",
+                  fontSize:13,fontWeight:600,color: activeCategory===c.id?"var(--blue)":"var(--gray-800)",
+                  display:"flex",alignItems:"center",gap:6,transition:"color .2s",whiteSpace:"nowrap",
+                  borderBottom: activeCategory===c.id?"2.5px solid var(--blue)":"2.5px solid transparent"
+                }}
+              >
+                {c.icon} {c.label} <ChevronDown size={12}/>
               </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {cart.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <ShoppingCart className="w-8 h-8 text-slate-300" />
-                  </div>
-                  <h3 className="font-bold text-slate-800 text-lg">Vaša košarica je prazna</h3>
-                  <p className="text-slate-500 mt-2">Nič še niste dodali v svojo nakupovalno košarico.</p>
-                  <button 
-                    onClick={() => setShowCartDrawer(false)}
-                    className="mt-8 text-blue-600 font-bold hover:underline"
-                  >
-                    Nazaj v trgovino
-                  </button>
+              {activeCategory===c.id && (
+                <div style={{
+                  position:"absolute",top:"100%",left:0,background:"#fff",
+                  border:"1px solid var(--gray-200)",borderRadius:"0 0 10px 10px",
+                  boxShadow:"0 16px 40px rgba(0,0,0,.12)",zIndex:300,minWidth:200,
+                  padding:"8px 0"
+                }}>
+                  {c.sub.map(s=>(
+                    <div key={s} onClick={()=>setPage("shop")} style={{
+                      padding:"9px 20px",fontSize:13,cursor:"pointer",color:"var(--gray-600)",
+                      display:"flex",alignItems:"center",gap:8,transition:"all .15s"
+                    }}
+                      onMouseEnter={e=>{e.currentTarget.style.background="var(--blue-light)";e.currentTarget.style.color="var(--blue)";e.currentTarget.style.paddingLeft="24px";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="";e.currentTarget.style.color="var(--gray-600)";e.currentTarget.style.paddingLeft="20px";}}
+                    >
+                      <ChevronRight size={12}/> {s}
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                cart.map(item => (
-                  <div key={item.id} className="flex gap-4 group">
-                    <div className="w-24 h-24 bg-slate-50 rounded-xl p-2 shrink-0 border border-slate-100">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-slate-800 text-sm line-clamp-2 leading-snug mb-2">{item.name}</h4>
-                      <div className="flex items-center justify-between mt-auto">
-                        <div className="flex items-center border border-slate-200 rounded-lg p-1 bg-white">
-                          <button onClick={() => updateQty(item.id, -1)} className="p-1 hover:text-blue-600"><Minus className="w-3 h-3" /></button>
-                          <span className="px-3 text-sm font-bold min-w-[2rem] text-center">{item.qty}</span>
-                          <button onClick={() => updateQty(item.id, 1)} className="p-1 hover:text-blue-600"><Plus className="w-3 h-3" /></button>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-blue-600">{(item.price * item.qty).toFixed(2)} €</div>
-                          <button onClick={() => removeFromCart(item.id)} className="text-[10px] text-red-500 font-bold uppercase tracking-wider hover:underline flex items-center gap-1 justify-end mt-1">
-                            Odstrani
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
               )}
             </div>
+          ))}
 
-            {cart.length > 0 && (
-              <div className="p-6 border-t bg-slate-50">
-                <div className="flex justify-between items-center mb-4 text-sm">
-                  <span className="text-slate-500">Skupaj (brez dostave)</span>
-                  <span className="text-xl font-black text-slate-900">{cartTotal.toFixed(2)} €</span>
-                </div>
-                <button 
-                  onClick={() => {
-                    setShowCartDrawer(false);
-                    setView('checkout');
-                  }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  Na blagajno <ChevronRight className="w-5 h-5" />
-                </button>
-                <div className="flex items-center justify-center gap-4 mt-6 grayscale opacity-40">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" className="h-4" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-6" />
-                </div>
-              </div>
-            )}
+          <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:16,fontSize:12,color:"var(--gray-600)"}}>
+            <span style={{display:"flex",gap:5,alignItems:"center",color:"var(--teal)",fontWeight:600}}><Percent size={13}/> Posebne ponudbe</span>
+            <span style={{display:"flex",gap:5,alignItems:"center",fontWeight:600}}><TrendingUp size={13}/> Bestselerji</span>
           </div>
         </div>
-      )}
-
-      {/* Mobile Category Menu Overlay */}
-      {showMobileMenu && (
-        <div className="fixed inset-0 z-[60]">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowMobileMenu(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-[80%] max-w-[300px] bg-white transform animate-in slide-in-from-left">
-            <div className="p-6 border-b flex justify-between items-center">
-              <span className="font-bold text-lg">Meni</span>
-              <button onClick={() => setShowMobileMenu(false)}><X className="w-6 h-6" /></button>
-            </div>
-            <div className="p-4 space-y-2">
-              {CATEGORIES.map(cat => (
-                <button 
-                  key={cat}
-                  onClick={() => {
-                    setSelectedCategory(cat);
-                    setShowMobileMenu(false);
-                  }}
-                  className={`w-full text-left p-4 rounded-xl font-semibold ${
-                    selectedCategory === cat ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
+    </header>
   );
-}
+};
 
-function CheckoutView({ cart, total, onBack, onComplete }) {
-  const [step, setStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState('flik');
+// ─── HERO SLIDER ─────────────────────────────────────────────────────────────
+const Hero = ({ setPage }) => {
+  const [cur, setCur] = useState(0);
+  useEffect(()=>{
+    const t = setInterval(()=>setCur(c=>(c+1)%BANNERS.length),4200);
+    return ()=>clearInterval(t);
+  },[]);
+  const b = BANNERS[cur];
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <button 
-        onClick={onBack}
-        className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold mb-8 transition-colors"
+    <div style={{position:"relative",height:360,overflow:"hidden",borderRadius:16,flex:"1 1 600px"}}>
+      <div key={cur} style={{background:b.bg,height:"100%",display:"flex",alignItems:"center",padding:"0 60px",position:"relative",animation:"fadeUp .5s ease"}}>
+        <div style={{position:"absolute",right:0,top:0,bottom:0,width:"45%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:160,opacity:.25,userSelect:"none"}}>{b.emoji}</div>
+        <div>
+          <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"center"}}>
+            <span style={{background:"rgba(255,255,255,.2)",color:"#fff",borderRadius:20,padding:"4px 14px",fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>Ekskluzivna ponudba</span>
+          </div>
+          <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:52,fontWeight:800,color:"#fff",lineHeight:1.1,marginBottom:12}}>{b.title}</h2>
+          <p style={{color:"rgba(255,255,255,.85)",fontSize:20,marginBottom:28,fontWeight:500}}>{b.sub}</p>
+          <button onClick={()=>setPage("shop")} style={{
+            background:b.accent==="var(--orange)"?"var(--orange)":"rgba(255,255,255,.2)",
+            border:`2px solid ${b.accent==="var(--orange)"?"var(--orange)":"rgba(255,255,255,.5)"}`,
+            color:"#fff",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,
+            cursor:"pointer",display:"flex",alignItems:"center",gap:8,transition:"all .2s"
+          }}
+            onMouseEnter={e=>{e.currentTarget.style.background="#fff";e.currentTarget.style.color="var(--blue)";}}
+            onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.2)";e.currentTarget.style.color="#fff";}}
+          >
+            {b.cta} <ArrowRight size={16}/>
+          </button>
+        </div>
+      </div>
+
+      {/* Dots */}
+      <div style={{position:"absolute",bottom:20,left:"50%",transform:"translateX(-50%)",display:"flex",gap:6}}>
+        {BANNERS.map((_,i)=>(
+          <div key={i} onClick={()=>setCur(i)} style={{
+            width: i===cur?24:8, height:8, borderRadius:4,
+            background: i===cur?"#fff":"rgba(255,255,255,.45)",
+            cursor:"pointer", transition:"all .3s"
+          }}/>
+        ))}
+      </div>
+
+      {/* Arrows */}
+      {[[-1,<ChevronLeft size={20}/>,"left:12px"],[1,<ChevronRight size={20}/>,"right:12px"]].map(([dir,ico,pos])=>(
+        <button key={pos} onClick={()=>setCur(c=>(c+dir+BANNERS.length)%BANNERS.length)} style={{
+          position:"absolute",top:"50%",transform:"translateY(-50%)",
+          [pos.split(":")[0]]:pos.split(":")[1],
+          background:"rgba(255,255,255,.2)",border:"none",borderRadius:"50%",
+          width:40,height:40,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",
+          backdropFilter:"blur(8px)"
+        }}>{ico}</button>
+      ))}
+    </div>
+  );
+};
+
+// ─── MINI BANNERS ─────────────────────────────────────────────────────────────
+const MiniBanners = ({ setPage }) => (
+  <div style={{display:"flex",flexDirection:"column",gap:12,flex:"0 0 280px"}}>
+    {[
+      {bg:"linear-gradient(135deg,#FF6B00,#E65100)",emoji:"🔥",title:"Dnevne akcije",sub:"–30% danes"},
+      {bg:"linear-gradient(135deg,#00A99D,#007A70)",emoji:"🚀",title:"Express dostava",sub:"Do 24 ur"},
+    ].map(({bg,emoji,title,sub})=>(
+      <div key={title} onClick={()=>setPage("shop")} style={{
+        background:bg, borderRadius:12, padding:"20px 24px", cursor:"pointer",
+        display:"flex",alignItems:"center",gap:16, flex:1,
+        transition:"transform .2s, box-shadow .2s"
+      }}
+        onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.02)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,.2)";}}
+        onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}
       >
-        <ArrowLeft className="w-4 h-4" /> Nazaj v trgovino
+        <span style={{fontSize:40}}>{emoji}</span>
+        <div>
+          <div style={{color:"#fff",fontWeight:700,fontSize:16,fontFamily:"'Syne',sans-serif"}}>{title}</div>
+          <div style={{color:"rgba(255,255,255,.8)",fontSize:13}}>{sub}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// ─── PRODUCT CARD ─────────────────────────────────────────────────────────────
+const ProductCard = ({ p, addToCart, wishlist, toggleWish }) => {
+  const [added, setAdded] = useState(false);
+  const handleAdd = () => {
+    addToCart(p);
+    setAdded(true);
+    setTimeout(()=>setAdded(false),1600);
+  };
+  const d = disc(p.price, p.oldPrice);
+
+  return (
+    <div className="hover-lift" style={{
+      background:"#fff",borderRadius:12,border:"1px solid var(--gray-200)",
+      overflow:"hidden",display:"flex",flexDirection:"column",position:"relative"
+    }}>
+      {/* Badges */}
+      <div style={{position:"absolute",top:10,left:10,display:"flex",flexDirection:"column",gap:4,zIndex:2}}>
+        {p.badge==="Akcija" && <span className="badge-sale" style={{color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:4}}>–{d}%</span>}
+        {p.badge==="Novo"   && <span className="badge-new"  style={{color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:4}}>NOVO</span>}
+        {p.badge==="Hot"    && <span className="badge-hot"  style={{color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:4}}>🔥 HOT</span>}
+        {!p.stock && <span style={{background:"#64748B",color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:4}}>RAZPRODANO</span>}
+      </div>
+
+      {/* Wish */}
+      <button onClick={()=>toggleWish(p.id)} style={{
+        position:"absolute",top:10,right:10,zIndex:2,
+        background:wishlist.includes(p.id)?"#FEE2E2":"rgba(255,255,255,.9)",
+        border:"none",borderRadius:"50%",width:32,height:32,cursor:"pointer",
+        display:"flex",alignItems:"center",justifyContent:"center",
+        boxShadow:"0 2px 8px rgba(0,0,0,.1)",transition:"all .2s"
+      }}>
+        <Heart size={15} style={{fill:wishlist.includes(p.id)?"#EF4444":"none",color:wishlist.includes(p.id)?"#EF4444":"#94A3B8"}}/>
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2">
-          {/* Progress bar */}
-          <div className="flex justify-between mb-12 relative px-4">
-            <div className="absolute top-5 left-8 right-8 h-0.5 bg-slate-200 -z-10" />
-            <div className="flex flex-col items-center gap-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-slate-200'}`}>1</div>
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Podatki</span>
+      {/* Image */}
+      <div style={{
+        height:180,background:"linear-gradient(135deg,#F8FAFC,#EFF6FF)",
+        display:"flex",alignItems:"center",justifyContent:"center",fontSize:80,
+        borderBottom:"1px solid var(--gray-200)",transition:"all .3s"
+      }}>{p.img}</div>
+
+      {/* Body */}
+      <div style={{padding:"14px",display:"flex",flexDirection:"column",gap:8,flex:1}}>
+        <span style={{fontSize:10,fontWeight:600,color:"var(--blue)",letterSpacing:.5,textTransform:"uppercase"}}>{p.brand}</span>
+        <p style={{fontSize:13,fontWeight:600,color:"var(--gray-800)",lineHeight:1.4,flex:1}}>{p.name}</p>
+
+        {/* Rating */}
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <Stars rating={p.rating}/>
+          <span style={{fontSize:12,fontWeight:600,color:"#FBBF24"}}>{p.rating}</span>
+          <span style={{fontSize:11,color:"var(--gray-400)"}}>({p.reviews})</span>
+        </div>
+
+        {/* Price */}
+        <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
+          <span style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800,color:"var(--blue)"}}>{fmt(p.price)}</span>
+          {p.oldPrice && <span style={{fontSize:12,color:"var(--gray-400)",textDecoration:"line-through",marginBottom:3}}>{fmt(p.oldPrice)}</span>}
+        </div>
+
+        {/* Stock */}
+        <span style={{fontSize:11,fontWeight:600,color:p.stock?"#16A34A":"#EF4444",display:"flex",alignItems:"center",gap:4}}>
+          {p.stock ? <><Check size={11}/> Zaloga: Na voljo</> : "✗ Ni na zalogi"}
+        </span>
+
+        {/* CTA */}
+        <button onClick={handleAdd} disabled={!p.stock} style={{
+          background: added?"#16A34A":p.stock?"var(--blue)":"var(--gray-200)",
+          color: p.stock?"#fff":"var(--gray-400)",
+          border:"none",borderRadius:8,padding:"10px 0",fontSize:13,fontWeight:700,
+          cursor:p.stock?"pointer":"not-allowed",transition:"all .25s",
+          display:"flex",alignItems:"center",justifyContent:"center",gap:6
+        }}>
+          {added ? <><Check size={14}/> Dodano!</> : <><ShoppingCart size={14}/> Dodaj v košarico</>}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── SIDEBAR FILTERS ──────────────────────────────────────────────────────────
+const Sidebar = ({ filters, setFilters }) => {
+  const [priceMax, setPriceMax] = useState(filters.maxPrice);
+
+  return (
+    <aside style={{width:240,flexShrink:0,display:"flex",flexDirection:"column",gap:4}}>
+      {/* Price */}
+      <div style={{background:"#fff",borderRadius:12,padding:20,border:"1px solid var(--gray-200)"}}>
+        <h3 style={{fontSize:14,fontWeight:700,marginBottom:16,display:"flex",alignItems:"center",gap:8,color:"var(--gray-800)"}}><Tag size={15}/> Cena</h3>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:12,fontWeight:600,color:"var(--blue)",marginBottom:10}}>
+          <span>0 €</span><span>{priceMax} €</span>
+        </div>
+        <input type="range" min={0} max={1500} value={priceMax} className="slider-thumb"
+          style={{"--val":`${(priceMax/1500)*100}%`}}
+          onChange={e=>{setPriceMax(+e.target.value);setFilters(f=>({...f,maxPrice:+e.target.value}));}}
+        />
+        <div style={{display:"flex",gap:8,marginTop:12}}>
+          <input type="number" placeholder="Min" style={{flex:1,border:"1px solid var(--gray-200)",borderRadius:6,padding:"6px 8px",fontSize:12,outline:"none"}}/>
+          <input type="number" placeholder={priceMax} style={{flex:1,border:"1px solid var(--gray-200)",borderRadius:6,padding:"6px 8px",fontSize:12,outline:"none"}}/>
+        </div>
+      </div>
+
+      {/* Brands */}
+      <div style={{background:"#fff",borderRadius:12,padding:20,border:"1px solid var(--gray-200)"}}>
+        <h3 style={{fontSize:14,fontWeight:700,marginBottom:14,display:"flex",alignItems:"center",gap:8,color:"var(--gray-800)"}}><Award size={15}/> Blagovna znamka</h3>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {BRANDS.map(b=>(
+            <label key={b} style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",fontSize:13,color:"var(--gray-600)",fontWeight:500}}>
+              <div onClick={()=>setFilters(f=>({...f,brands:f.brands.includes(b)?f.brands.filter(x=>x!==b):[...f.brands,b]}))}
+                style={{
+                  width:16,height:16,border:`2px solid ${filters.brands.includes(b)?"var(--blue)":"var(--gray-200)"}`,
+                  borderRadius:4,background:filters.brands.includes(b)?"var(--blue)":"#fff",
+                  display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,cursor:"pointer",transition:"all .15s"
+                }}>
+                {filters.brands.includes(b) && <Check size={10} color="#fff"/>}
+              </div>
+              {b}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Stock */}
+      <div style={{background:"#fff",borderRadius:12,padding:20,border:"1px solid var(--gray-200)"}}>
+        <h3 style={{fontSize:14,fontWeight:700,marginBottom:14,display:"flex",alignItems:"center",gap:8,color:"var(--gray-800)"}}><Package size={15}/> Zaloga</h3>
+        {[["all","Vsi izdelki"],["inStock","Samo na zalogi"],["sale","Na razprodaji"]].map(([val,lbl])=>(
+          <label key={val} style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",fontSize:13,color:"var(--gray-600)",marginBottom:8,fontWeight:500}}>
+            <div onClick={()=>setFilters(f=>({...f,stock:val}))} style={{
+              width:16,height:16,border:`2px solid ${filters.stock===val?"var(--blue)":"var(--gray-200)"}`,
+              borderRadius:"50%",background:filters.stock===val?"var(--blue)":"#fff",
+              display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .15s",flexShrink:0
+            }}>
+              {filters.stock===val && <div style={{width:6,height:6,background:"#fff",borderRadius:"50%"}}/>}
             </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200'}`}>2</div>
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Plačilo</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200'}`}>3</div>
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Potrditev</span>
-            </div>
+            {lbl}
+          </label>
+        ))}
+      </div>
+
+      {/* Category */}
+      <div style={{background:"#fff",borderRadius:12,padding:20,border:"1px solid var(--gray-200)"}}>
+        <h3 style={{fontSize:14,fontWeight:700,marginBottom:14,display:"flex",alignItems:"center",gap:8,color:"var(--gray-800)"}}><SlidersHorizontal size={15}/> Kategorija</h3>
+        {CATS.map(c=>(
+          <div key={c.id} onClick={()=>setFilters(f=>({...f,cat:f.cat===c.id?"":c.id}))} style={{
+            display:"flex",alignItems:"center",gap:8,padding:"7px 10px",borderRadius:8,cursor:"pointer",marginBottom:2,
+            background:filters.cat===c.id?"var(--blue-light)":"transparent",
+            color:filters.cat===c.id?"var(--blue)":"var(--gray-600)",fontWeight:filters.cat===c.id?600:400,
+            fontSize:13,transition:"all .15s"
+          }}>
+            {c.icon} {c.label}
           </div>
+        ))}
+      </div>
+    </aside>
+  );
+};
 
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-            {step === 1 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h2 className="text-2xl font-bold mb-8">Vaši podatki</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-1">
-                    <label className="block text-sm font-bold text-slate-500 mb-2">Ime</label>
-                    <input type="text" defaultValue="Janez" className="w-full bg-slate-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-bold text-slate-500 mb-2">Priimek</label>
-                    <input type="text" defaultValue="Novak" className="w-full bg-slate-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm font-bold text-slate-500 mb-2">Ulica in hišna številka</label>
-                    <input type="text" className="w-full bg-slate-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-blue-500" placeholder="npr. Slovenska cesta 15" />
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-bold text-slate-500 mb-2">Poštna številka</label>
-                    <input type="text" className="w-full bg-slate-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-blue-500" placeholder="1000" />
-                  </div>
-                  <div className="col-span-1">
-                    <label className="block text-sm font-bold text-slate-500 mb-2">Kraj</label>
-                    <input type="text" className="w-full bg-slate-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-blue-500" placeholder="Ljubljana" />
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setStep(2)}
-                  className="w-full mt-10 bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all"
-                >
-                  Nadaljuj na plačilo
-                </button>
-              </div>
-            )}
+// ─── SHOP PAGE ────────────────────────────────────────────────────────────────
+const ShopPage = ({ addToCart, wishlist, toggleWish }) => {
+  const [filters, setFilters] = useState({ maxPrice:1500, brands:[], stock:"all", cat:"" });
+  const [sort, setSort] = useState("default");
+  const [view, setView] = useState("grid");
 
-            {step === 2 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h2 className="text-2xl font-bold mb-8">Način plačila</h2>
-                <div className="space-y-4">
-                  <div 
-                    onClick={() => setPaymentMethod('flik')}
-                    className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'flik' ? 'border-blue-600 bg-blue-50' : 'border-slate-100 hover:border-slate-200'}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center overflow-hidden border border-slate-100">
-                        <Smartphone className="w-6 h-6 text-emerald-500" />
-                      </div>
-                      <div>
-                        <div className="font-bold">Flik</div>
-                        <div className="text-xs text-slate-500">Takojšnje plačilo s telefonsko številko</div>
-                      </div>
-                    </div>
-                    {paymentMethod === 'flik' && <CheckCircle className="w-6 h-6 text-blue-600" />}
-                  </div>
+  let products = PRODUCTS
+    .filter(p => p.price <= filters.maxPrice)
+    .filter(p => filters.brands.length===0 || filters.brands.includes(p.brand))
+    .filter(p => filters.stock==="inStock" ? p.stock : filters.stock==="sale" ? p.oldPrice : true)
+    .filter(p => !filters.cat || p.cat===filters.cat);
 
-                  <div 
-                    onClick={() => setPaymentMethod('card')}
-                    className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'card' ? 'border-blue-600 bg-blue-50' : 'border-slate-100 hover:border-slate-200'}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100">
-                        <CreditCard className="w-6 h-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="font-bold">Plačilna kartica</div>
-                        <div className="text-xs text-slate-500">Visa, Mastercard, Maestro</div>
-                      </div>
-                    </div>
-                    {paymentMethod === 'card' && <CheckCircle className="w-6 h-6 text-blue-600" />}
-                  </div>
+  if (sort==="price-asc")  products = [...products].sort((a,b)=>a.price-b.price);
+  if (sort==="price-desc") products = [...products].sort((a,b)=>b.price-a.price);
+  if (sort==="rating")     products = [...products].sort((a,b)=>b.rating-a.rating);
+  if (sort==="newest")     products = [...products].filter(p=>p.isNew).concat([...products].filter(p=>!p.isNew));
 
-                  <div 
-                    onClick={() => setPaymentMethod('cod')}
-                    className={`flex items-center justify-between p-6 rounded-2xl border-2 cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-blue-600 bg-blue-50' : 'border-slate-100 hover:border-slate-200'}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100">
-                        <Wallet className="w-6 h-6 text-orange-500" />
-                      </div>
-                      <div>
-                        <div className="font-bold">Plačilo po povzetju</div>
-                        <div className="text-xs text-slate-500">Plačajte kurirju ob dostavi</div>
-                      </div>
-                    </div>
-                    {paymentMethod === 'cod' && <CheckCircle className="w-6 h-6 text-blue-600" />}
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setStep(3)}
-                  className="w-full mt-10 bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all"
-                >
-                  Pregled naročila
-                </button>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h2 className="text-2xl font-bold mb-4">Pregled naročila</h2>
-                <p className="text-slate-500 mb-8">Prosimo, preverite podatke pred oddajo naročila.</p>
-                <div className="bg-slate-50 rounded-2xl p-6 mb-8 space-y-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Dostava na:</span>
-                    <span className="font-bold text-right text-slate-700">Janez Novak, Slovenska cesta 15, 1000 Ljubljana</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Način plačila:</span>
-                    <span className="font-bold text-slate-700 uppercase">{paymentMethod}</span>
-                  </div>
-                </div>
-                <button 
-                  onClick={onComplete}
-                  className="w-full bg-orange-500 text-white font-bold py-4 rounded-xl hover:bg-orange-600 shadow-lg shadow-orange-100 transition-all"
-                >
-                  Oddaj naročilo
-                </button>
-              </div>
-            )}
+  return (
+    <div style={{display:"flex",gap:24,alignItems:"flex-start"}}>
+      <Sidebar filters={filters} setFilters={setFilters}/>
+      <div style={{flex:1}}>
+        {/* Toolbar */}
+        <div style={{background:"#fff",borderRadius:12,padding:"14px 20px",border:"1px solid var(--gray-200)",marginBottom:20,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <span style={{fontSize:13,color:"var(--gray-600)",fontWeight:500}}>
+            <strong style={{color:"var(--gray-800)"}}>{products.length}</strong> izdelkov najdenih
+          </span>
+          <div style={{display:"flex",gap:10,alignItems:"center"}}>
+            <label style={{fontSize:13,fontWeight:500,color:"var(--gray-600)"}}>Razvrsti:</label>
+            <select value={sort} onChange={e=>setSort(e.target.value)} style={{border:"1px solid var(--gray-200)",borderRadius:8,padding:"7px 12px",fontSize:13,outline:"none",color:"var(--gray-800)"}}>
+              <option value="default">Privzeto</option>
+              <option value="price-asc">Cena: naraščajoče</option>
+              <option value="price-desc">Cena: padajoče</option>
+              <option value="rating">Najboljše ocenjeni</option>
+              <option value="newest">Najnovejši</option>
+            </select>
           </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 sticky top-24">
-            <h3 className="font-bold text-lg mb-6">Povzetek naročila</h3>
-            <div className="space-y-4 max-h-[40vh] overflow-y-auto mb-6 pr-2 custom-scrollbar">
-              {cart.map(item => (
-                <div key={item.id} className="flex gap-3 text-sm">
-                  <div className="w-12 h-12 bg-slate-50 rounded p-1 shrink-0">
-                    <img src={item.image} alt="" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium line-clamp-1">{item.name}</div>
-                    <div className="text-slate-400">{item.qty}x {item.price.toFixed(2)} €</div>
-                  </div>
-                  <div className="font-bold">{(item.qty * item.price).toFixed(2)} €</div>
-                </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:16}}>
+          {products.map(p=>(
+            <div key={p.id} className="anim-fade" style={{animationDelay:`${(p.id%6)*0.05}s`}}>
+              <ProductCard p={p} addToCart={addToCart} wishlist={wishlist} toggleWish={toggleWish}/>
+            </div>
+          ))}
+        </div>
+        {products.length===0 && (
+          <div style={{textAlign:"center",padding:"80px 0",color:"var(--gray-400)"}}>
+            <Package size={48} style={{margin:"0 auto 16px",display:"block",opacity:.4}}/>
+            <p style={{fontSize:16,fontWeight:600}}>Ni najdenih izdelkov</p>
+            <p style={{fontSize:13,marginTop:6}}>Poskusite spremeniti filtre</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── CART PAGE ────────────────────────────────────────────────────────────────
+const CartPage = ({ cart, updateQty, removeFromCart, setPage }) => {
+  const sub = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const ship = sub>=49 ? 0 : 3.99;
+  const total = sub+ship;
+
+  if (!cart.length) return (
+    <div style={{textAlign:"center",padding:"100px 40px",background:"#fff",borderRadius:16,border:"1px solid var(--gray-200)"}}>
+      <ShoppingCart size={64} style={{margin:"0 auto 20px",display:"block",color:"var(--gray-200)"}}/>
+      <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:28,fontWeight:800,marginBottom:12}}>Vaša košarica je prazna</h2>
+      <p style={{color:"var(--gray-400)",marginBottom:28}}>Odkrijte naše izdelke in dodajte kaj v košarico.</p>
+      <button onClick={()=>setPage("shop")} className="btn-blue" style={{
+        background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,
+        padding:"13px 32px",fontSize:14,fontWeight:700,cursor:"pointer"
+      }}>Pojdi v trgovino</button>
+    </div>
+  );
+
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 360px",gap:24,alignItems:"start"}}>
+      {/* Items */}
+      <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--gray-200)",overflow:"hidden"}}>
+        <div style={{padding:"20px 24px",borderBottom:"1px solid var(--gray-200)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800}}>Košarica ({cart.length})</h2>
+        </div>
+        {cart.map(item=>(
+          <div key={item.id} style={{display:"grid",gridTemplateColumns:"80px 1fr auto",gap:16,padding:"20px 24px",borderBottom:"1px solid var(--gray-100)",alignItems:"center"}}>
+            <div style={{background:"linear-gradient(135deg,#F8FAFC,#EFF6FF)",borderRadius:10,height:80,display:"flex",alignItems:"center",justifyContent:"center",fontSize:40}}>{item.img}</div>
+            <div>
+              <span style={{fontSize:10,fontWeight:700,color:"var(--blue)",letterSpacing:.5,textTransform:"uppercase",display:"block",marginBottom:3}}>{item.brand}</span>
+              <p style={{fontSize:14,fontWeight:600,color:"var(--gray-800)",marginBottom:6,lineHeight:1.3}}>{item.name}</p>
+              <span style={{fontSize:16,fontWeight:800,color:"var(--blue)",fontFamily:"'Syne',sans-serif"}}>{fmt(item.price)}</span>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:10}}>
+              <div style={{display:"flex",alignItems:"center",border:"1.5px solid var(--gray-200)",borderRadius:8,overflow:"hidden"}}>
+                <button onClick={()=>updateQty(item.id,item.qty-1)} style={{width:32,height:32,background:"none",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--gray-600)",transition:"background .15s"}}><Minus size={13}/></button>
+                <span style={{padding:"0 12px",fontSize:14,fontWeight:700}}>{item.qty}</span>
+                <button onClick={()=>updateQty(item.id,item.qty+1)} style={{width:32,height:32,background:"none",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--gray-600)",transition:"background .15s"}}><Plus size={13}/></button>
+              </div>
+              <span style={{fontWeight:700,fontSize:14}}>{fmt(item.price*item.qty)}</span>
+              <button onClick={()=>removeFromCart(item.id)} style={{background:"none",border:"none",cursor:"pointer",color:"var(--gray-400)",display:"flex",alignItems:"center",gap:4,fontSize:11,transition:"color .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.color="#EF4444"}
+                onMouseLeave={e=>e.currentTarget.style.color="var(--gray-400)"}
+              ><Trash2 size={12}/> Odstrani</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Summary */}
+      <div style={{position:"sticky",top:90}}>
+        <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--gray-200)",padding:24,marginBottom:12}}>
+          <h3 style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:800,marginBottom:20}}>Povzetek naročila</h3>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12,fontSize:14}}>
+            <span style={{color:"var(--gray-600)"}}>Vmesni seštevek</span><span style={{fontWeight:600}}>{fmt(sub)}</span>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12,fontSize:14}}>
+            <span style={{color:"var(--gray-600)"}}>Dostava</span>
+            <span style={{fontWeight:600,color:ship===0?"#16A34A":"var(--gray-800)"}}>{ship===0?"BREZPLAČNO":fmt(ship)}</span>
+          </div>
+          {sub<49 && <div style={{fontSize:12,color:"var(--orange)",fontWeight:600,marginBottom:12,background:"var(--orange-light)",padding:"8px 12px",borderRadius:8}}> Do brezplačne dostave manjka {fmt(49-sub)}</div>}
+          <div style={{borderTop:"2px solid var(--gray-100)",paddingTop:16,marginTop:4,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontWeight:700,fontSize:15}}>Skupaj (z DDV)</span>
+            <span style={{fontFamily:"'Syne',sans-serif",fontSize:26,fontWeight:800,color:"var(--blue)"}}>{fmt(total)}</span>
+          </div>
+          <p style={{fontSize:11,color:"var(--gray-400)",marginTop:6}}>DDV vključen v ceno</p>
+          <button onClick={()=>setPage("checkout")} style={{
+            width:"100%",background:"var(--orange)",color:"#fff",border:"none",borderRadius:10,
+            padding:"14px 0",fontSize:15,fontWeight:700,cursor:"pointer",marginTop:20,
+            display:"flex",alignItems:"center",justifyContent:"center",gap:8,transition:"opacity .2s"
+          }}
+            onMouseEnter={e=>e.currentTarget.style.opacity=".88"}
+            onMouseLeave={e=>e.currentTarget.style.opacity="1"}
+          >Na blagajno <ArrowRight size={17}/></button>
+          <button onClick={()=>setPage("shop")} style={{
+            width:"100%",background:"transparent",color:"var(--blue)",border:"2px solid var(--blue)",borderRadius:10,
+            padding:"11px 0",fontSize:13,fontWeight:700,cursor:"pointer",marginTop:10,transition:"all .2s"
+          }}
+            onMouseEnter={e=>{e.currentTarget.style.background="var(--blue)";e.currentTarget.style.color="#fff";}}
+            onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="var(--blue)";}}
+          >Nadaljuj nakupovanje</button>
+        </div>
+
+        {/* Trust */}
+        <div style={{background:"#fff",borderRadius:12,border:"1px solid var(--gray-200)",padding:"16px 20px"}}>
+          {[["🔒","Varno plačilo","SSL 256-bit šifriranje"],["🚚","Hitra dostava","1–3 delovni dnevi"],["↩️","14 dni za vračilo","Brez vprašanj"]].map(([i,t,s])=>(
+            <div key={t} style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
+              <span style={{fontSize:22}}>{i}</span>
+              <div>
+                <div style={{fontSize:12,fontWeight:700}}>{t}</div>
+                <div style={{fontSize:11,color:"var(--gray-400)"}}>{s}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── CHECKOUT PAGE ────────────────────────────────────────────────────────────
+const CheckoutPage = ({ cart, clearCart, setPage }) => {
+  const [step, setStep] = useState(1);
+  const [pay, setPay] = useState("kartica");
+  const [done, setDone] = useState(false);
+  const [form, setForm] = useState({ime:"",priimek:"",email:"",tel:"",ulica:"",postna:"",kraj:"",opis:""});
+  const set = e => setForm(f=>({...f,[e.target.name]:e.target.value}));
+  const sub = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const ship = sub>=49?0:3.99;
+  const povzetje = pay==="povzetje"?1.5:0;
+  const total = sub+ship+povzetje;
+
+  if (done) return (
+    <div style={{textAlign:"center",padding:"100px 40px",background:"#fff",borderRadius:16,maxWidth:520,margin:"0 auto"}}>
+      <div style={{width:80,height:80,background:"#DCFCE7",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 24px"}}>
+        <Check size={40} color="#16A34A"/>
+      </div>
+      <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:32,fontWeight:800,marginBottom:12}}>Naročilo oddano!</h2>
+      <p style={{color:"var(--gray-600)",marginBottom:8}}>Hvala za nakup pri <strong>ShoopSlo</strong>!</p>
+      <p style={{color:"var(--gray-400)",fontSize:13,marginBottom:32}}>Potrdilo smo poslali na vaš e-naslov. Dostava v 1–3 delovnih dnevih.</p>
+      <button onClick={()=>{setPage("home");}} style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,padding:"13px 32px",fontSize:14,fontWeight:700,cursor:"pointer"}}>Nazaj na domov</button>
+    </div>
+  );
+
+  const STEPS = ["Podatki","Dostava","Plačilo","Pregled"];
+  const inputStyle = {border:"1.5px solid var(--gray-200)",borderRadius:8,padding:"11px 14px",fontSize:14,outline:"none",width:"100%",fontFamily:"inherit",color:"var(--gray-800)",transition:"border-color .2s"};
+
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 340px",gap:24,alignItems:"start"}}>
+      <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--gray-200)",padding:32}}>
+        {/* Stepper */}
+        <div style={{display:"flex",marginBottom:36,gap:0}}>
+          {STEPS.map((s,i)=>(
+            <div key={s} style={{display:"flex",alignItems:"center",flex:i<STEPS.length-1?1:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+                <div style={{
+                  width:32,height:32,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
+                  background:step>i+1?"#16A34A":step===i+1?"var(--blue)":"var(--gray-100)",
+                  color:step>=i+1?"#fff":"var(--gray-400)",fontSize:13,fontWeight:700,flexShrink:0,transition:"all .3s"
+                }}>{step>i+1?<Check size={14}/>:i+1}</div>
+                <span style={{fontSize:13,fontWeight:step===i+1?700:500,color:step===i+1?"var(--blue)":step>i+1?"#16A34A":"var(--gray-400)",whiteSpace:"nowrap"}}>{s}</span>
+              </div>
+              {i<STEPS.length-1 && <div style={{flex:1,height:2,background:step>i+1?"#16A34A":"var(--gray-100)",margin:"0 12px",transition:"background .3s"}}/>}
+            </div>
+          ))}
+        </div>
+
+        {/* Step 1 */}
+        {step===1 && (
+          <div style={{display:"grid",gap:16}} className="anim-fade">
+            <h3 style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,marginBottom:4}}>Osebni podatki</h3>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+              {[["ime","Ime","Ana"],["priimek","Priimek","Novak"]].map(([n,l,ph])=>(
+                <div key={n}><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>{l} *</label>
+                <input name={n} value={form[n]} onChange={set} placeholder={ph} style={inputStyle} onFocus={e=>e.target.style.borderColor="var(--blue)"} onBlur={e=>e.target.style.borderColor="var(--gray-200)"}/></div>
               ))}
             </div>
-            <div className="border-t pt-4 space-y-2">
-              <div className="flex justify-between text-slate-500">
-                <span>Vmesna vsota:</span>
-                <span>{total.toFixed(2)} €</span>
-              </div>
-              <div className="flex justify-between text-slate-500">
-                <span>Dostava:</span>
-                <span className="text-emerald-600 font-bold">Brezplačno</span>
-              </div>
-              <div className="flex justify-between text-xl font-black pt-4 border-t mt-4">
-                <span>Skupaj:</span>
-                <span className="text-blue-600">{total.toFixed(2)} €</span>
-              </div>
+            {[["email","E-poštni naslov","ana.novak@email.si","email"],["tel","Telefonska številka","+386 41 123 456","tel"]].map(([n,l,ph,t])=>(
+              <div key={n}><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>{l} *</label>
+              <input type={t} name={n} value={form[n]} onChange={set} placeholder={ph} style={inputStyle} onFocus={e=>e.target.style.borderColor="var(--blue)"} onBlur={e=>e.target.style.borderColor="var(--gray-200)"}/></div>
+            ))}
+            <button onClick={()=>setStep(2)} style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:8,marginTop:8}}>Naprej <ArrowRight size={16}/></button>
+          </div>
+        )}
+
+        {/* Step 2 */}
+        {step===2 && (
+          <div style={{display:"grid",gap:16}} className="anim-fade">
+            <h3 style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,marginBottom:4}}>Naslov dostave</h3>
+            {[["ulica","Ulica in hišna številka","Slovenska cesta 1"]].map(([n,l,ph])=>(
+              <div key={n}><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>{l} *</label>
+              <input name={n} value={form[n]} onChange={set} placeholder={ph} style={inputStyle} onFocus={e=>e.target.style.borderColor="var(--blue)"} onBlur={e=>e.target.style.borderColor="var(--gray-200)"}/></div>
+            ))}
+            <div style={{display:"grid",gridTemplateColumns:"120px 1fr",gap:16}}>
+              <div><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>Poštna št. *</label>
+              <input name="postna" value={form.postna} onChange={set} placeholder="1000" maxLength={4} style={inputStyle} onFocus={e=>e.target.style.borderColor="var(--blue)"} onBlur={e=>e.target.style.borderColor="var(--gray-200)"}/></div>
+              <div><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>Kraj *</label>
+              <input name="kraj" value={form.kraj} onChange={set} placeholder="Ljubljana" style={inputStyle} onFocus={e=>e.target.style.borderColor="var(--blue)"} onBlur={e=>e.target.style.borderColor="var(--gray-200)"}/></div>
             </div>
+            <div><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>Opombe</label>
+            <textarea name="opis" value={form.opis} onChange={set} placeholder="Posebna navodila za dostavo…" style={{...inputStyle,height:80,resize:"vertical"}}/></div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setStep(1)} style={{background:"transparent",color:"var(--blue)",border:"2px solid var(--blue)",borderRadius:10,padding:"11px 20px",fontSize:13,fontWeight:700,cursor:"pointer"}}>← Nazaj</button>
+              <button onClick={()=>setStep(3)} style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:8}}>Naprej <ArrowRight size={16}/></button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 */}
+        {step===3 && (
+          <div style={{display:"grid",gap:16}} className="anim-fade">
+            <h3 style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,marginBottom:4}}>Način plačila</h3>
+            {[
+              ["kartica",<CreditCard size={22}/> ,"Plačilo s kartico","Visa, Mastercard, Maestro — SSL zaščita"],
+              ["flik",   <Smartphone size={22}/> ,"Flik","Takojšnje mobilno plačilo"],
+              ["povzetje",<Banknote size={22}/> ,"Plačilo po povzetju","Gotovina ob prevzemu (+1,50 €)"],
+            ].map(([val,ico,title,desc])=>(
+              <label key={val} onClick={()=>setPay(val)} style={{
+                display:"flex",alignItems:"center",gap:16,padding:"18px 20px",
+                border:`2px solid ${pay===val?"var(--blue)":"var(--gray-200)"}`,
+                borderRadius:12,cursor:"pointer",transition:"all .2s",
+                background:pay===val?"var(--blue-light)":"#fff"
+              }}>
+                <div style={{width:42,height:42,borderRadius:10,background:pay===val?"var(--blue)":"var(--gray-100)",display:"flex",alignItems:"center",justifyContent:"center",color:pay===val?"#fff":"var(--gray-400)",transition:"all .2s",flexShrink:0}}>{ico}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,fontSize:14,color:pay===val?"var(--blue)":"var(--gray-800)"}}>{title}</div>
+                  <div style={{fontSize:12,color:"var(--gray-400)",marginTop:2}}>{desc}</div>
+                </div>
+                <div style={{width:20,height:20,borderRadius:"50%",border:`2px solid ${pay===val?"var(--blue)":"var(--gray-200)"}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {pay===val && <div style={{width:8,height:8,background:"var(--blue)",borderRadius:"50%"}}/>}
+                </div>
+              </label>
+            ))}
+
+            {pay==="kartica" && (
+              <div style={{background:"var(--gray-50)",borderRadius:12,padding:20,border:"1px solid var(--gray-200)",display:"grid",gap:12}} className="anim-fade">
+                <div><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>Številka kartice</label>
+                <input placeholder="1234 5678 9012 3456" style={inputStyle}/></div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                  <div><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>Veljavnost</label>
+                  <input placeholder="MM / LL" style={inputStyle}/></div>
+                  <div><label style={{fontSize:12,fontWeight:700,color:"var(--gray-600)",display:"block",marginBottom:6,letterSpacing:.3,textTransform:"uppercase"}}>CVV</label>
+                  <input placeholder="123" maxLength={4} style={inputStyle}/></div>
+                </div>
+              </div>
+            )}
+
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setStep(2)} style={{background:"transparent",color:"var(--blue)",border:"2px solid var(--blue)",borderRadius:10,padding:"11px 20px",fontSize:13,fontWeight:700,cursor:"pointer"}}>← Nazaj</button>
+              <button onClick={()=>setStep(4)} style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:8}}>Pregled naročila <ArrowRight size={16}/></button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4 */}
+        {step===4 && (
+          <div style={{display:"grid",gap:20}} className="anim-fade">
+            <h3 style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,marginBottom:4}}>Pregled naročila</h3>
+            <div style={{background:"var(--blue-light)",borderRadius:12,padding:20,border:"1px solid var(--gray-200)",display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,fontSize:13}}>
+              <div><div style={{fontWeight:700,fontSize:12,textTransform:"uppercase",letterSpacing:.5,color:"var(--gray-400)",marginBottom:6}}>Kontakt</div>
+              <div style={{fontWeight:600}}>{form.ime} {form.priimek}</div><div style={{color:"var(--gray-600)"}}>{form.email}</div><div style={{color:"var(--gray-600)"}}>{form.tel}</div></div>
+              <div><div style={{fontWeight:700,fontSize:12,textTransform:"uppercase",letterSpacing:.5,color:"var(--gray-400)",marginBottom:6}}>Dostava</div>
+              <div style={{fontWeight:600}}>{form.ulica}</div><div style={{color:"var(--gray-600)"}}>{form.postna} {form.kraj}, Slovenija</div></div>
+              <div><div style={{fontWeight:700,fontSize:12,textTransform:"uppercase",letterSpacing:.5,color:"var(--gray-400)",marginBottom:6}}>Plačilo</div>
+              <div style={{fontWeight:600}}>{pay==="kartica"?"Kartica":pay==="flik"?"Flik":"Po povzetju"}</div></div>
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={()=>setStep(3)} style={{background:"transparent",color:"var(--blue)",border:"2px solid var(--blue)",borderRadius:10,padding:"11px 20px",fontSize:13,fontWeight:700,cursor:"pointer"}}>← Uredi</button>
+              <button onClick={()=>{setDone(true);clearCart();}} style={{flex:1,background:"var(--orange)",color:"#fff",border:"none",borderRadius:10,padding:"14px 0",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                <Check size={17}/> Potrdi naročilo
+              </button>
+            </div>
+            <p style={{fontSize:11,color:"var(--gray-400)",lineHeight:1.7}}>Z oddajo naročila se strinjate z <u>Splošnimi pogoji</u> in <u>Varstvom podatkov</u>. DDV je vključen v ceno.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Order summary */}
+      <div style={{background:"#fff",borderRadius:16,border:"1px solid var(--gray-200)",padding:24,position:"sticky",top:90}}>
+        <h3 style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:800,marginBottom:20}}>Vaše naročilo</h3>
+        <div style={{maxHeight:280,overflowY:"auto",marginBottom:16}}>
+          {cart.map(i=>(
+            <div key={i.id} style={{display:"flex",gap:12,marginBottom:14,alignItems:"center"}}>
+              <div style={{width:44,height:44,background:"var(--gray-50)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0,border:"1px solid var(--gray-200)"}}>{i.img}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <p style={{fontSize:12,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{i.name}</p>
+                <span style={{fontSize:11,color:"var(--gray-400)"}}>×{i.qty}</span>
+              </div>
+              <span style={{fontSize:13,fontWeight:700,flexShrink:0}}>{fmt(i.price*i.qty)}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{borderTop:"1px solid var(--gray-100)",paddingTop:16}}>
+          {[["Vmesni seštevek",fmt(sub)],["Dostava",ship===0?"BREZPLAČNO":fmt(ship)],["Po povzetju",pay==="povzetje"?fmt(1.5):null]].filter(x=>x[1]).map(([k,v])=>(
+            <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:10,fontSize:13}}>
+              <span style={{color:"var(--gray-600)"}}>{k}</span><span style={{fontWeight:600,color:v==="BREZPLAČNO"?"#16A34A":"inherit"}}>{v}</span>
+            </div>
+          ))}
+          <div style={{display:"flex",justifyContent:"space-between",paddingTop:12,borderTop:"1px solid var(--gray-100)"}}>
+            <span style={{fontWeight:700}}>Skupaj (z DDV)</span>
+            <span style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800,color:"var(--blue)"}}>{fmt(total)}</span>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-function SuccessView({ onHome }) {
-  return (
-    <div className="max-w-2xl mx-auto py-20 px-4 text-center animate-in zoom-in duration-700">
-      <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8">
-        <CheckCircle className="w-12 h-12" />
-      </div>
-      <h1 className="text-4xl font-black text-slate-900 mb-4">Hvala za vaše naročilo!</h1>
-      <p className="text-lg text-slate-500 mb-12">
-        Naročilo je bilo uspešno oddano. Potrdilo smo vam poslali na vaš e-naslov. <br/>
-        Številka naročila: <span className="font-bold text-slate-800">#SLO-92841-2024</span>
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <button 
-          onClick={onHome}
-          className="bg-blue-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
-        >
-          Nazaj na prvo stran
-        </button>
-        <button className="bg-slate-100 text-slate-700 px-10 py-4 rounded-xl font-bold hover:bg-slate-200 transition-all">
-          Sledi naročilu
-        </button>
+// ─── HOME PAGE ────────────────────────────────────────────────────────────────
+const HomePage = ({ addToCart, wishlist, toggleWish, setPage }) => (
+  <div style={{display:"flex",flexDirection:"column",gap:40}}>
+    {/* Hero + mini banners */}
+    <div style={{display:"flex",gap:16,alignItems:"stretch"}}>
+      <Hero setPage={setPage}/>
+      <MiniBanners setPage={setPage}/>
+    </div>
+
+    {/* Category shortcuts */}
+    <div>
+      <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:24,fontWeight:800,marginBottom:20}}>Nakupuj po kategorijah</h2>
+      <div style={{display:"flex",gap:12}}>
+        {CATS.map(c=>(
+          <div key={c.id} onClick={()=>setPage("shop")} style={{
+            flex:1,background:"#fff",borderRadius:14,padding:"20px 16px",
+            display:"flex",flexDirection:"column",alignItems:"center",gap:10,
+            border:"1.5px solid var(--gray-200)",cursor:"pointer",
+            transition:"all .2s"
+          }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--blue)";e.currentTarget.style.background="var(--blue-light)";e.currentTarget.style.transform="translateY(-3px)";}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--gray-200)";e.currentTarget.style.background="#fff";e.currentTarget.style.transform="";}}
+          >
+            <div style={{width:48,height:48,background:"var(--blue-light)",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--blue)"}}>
+              {c.icon}
+            </div>
+            <span style={{fontSize:13,fontWeight:700,textAlign:"center",color:"var(--gray-800)"}}>{c.label}</span>
+          </div>
+        ))}
       </div>
     </div>
+
+    {/* Featured products */}
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
+        <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:24,fontWeight:800}}>🔥 Priljubljeni izdelki</h2>
+        <button onClick={()=>setPage("shop")} style={{background:"transparent",border:"2px solid var(--blue)",color:"var(--blue)",borderRadius:8,padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.background="var(--blue)";e.currentTarget.style.color="#fff";}}
+          onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="var(--blue)";}}
+        >Vsi izdelki <ArrowRight size={14}/></button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:16}}>
+        {PRODUCTS.slice(0,8).map(p=>(
+          <ProductCard key={p.id} p={p} addToCart={addToCart} wishlist={wishlist} toggleWish={toggleWish}/>
+        ))}
+      </div>
+    </div>
+
+    {/* Promo strip */}
+    <div style={{background:"linear-gradient(135deg,var(--blue-dark),var(--blue))",borderRadius:16,padding:"32px 48px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:20}}>
+      <div>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:28,fontWeight:800,color:"#fff",marginBottom:6}}>Prijavi se na novice</div>
+        <div style={{color:"rgba(255,255,255,.75)",fontSize:14}}>Ekskluzivne ponudbe in –10% na prvo naročilo</div>
+      </div>
+      <div style={{display:"flex",gap:0,background:"#fff",borderRadius:10,overflow:"hidden",flexShrink:0}}>
+        <input placeholder="vaš@email.si" style={{border:"none",outline:"none",padding:"13px 18px",fontSize:14,width:240}}/>
+        <button style={{background:"var(--orange)",color:"#fff",border:"none",padding:"0 22px",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>Prijava →</button>
+      </div>
+    </div>
+  </div>
+);
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+const Footer = () => (
+  <footer style={{background:"var(--gray-800)",color:"rgba(255,255,255,.75)",marginTop:60,padding:"52px 0 0"}}>
+    <div style={{maxWidth:1400,margin:"0 auto",padding:"0 20px"}}>
+      {/* Trust row */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:1,background:"rgba(255,255,255,.08)",borderRadius:12,marginBottom:48,overflow:"hidden"}}>
+        {[["🔒","Varno plačilo","256-bit SSL šifriranje"],["🚚","Hitra dostava","1–3 delovni dnevi"],["↩️","14 dni za vračilo","Enostavna vrnitev"],["🏆","Preverjena kakovost","1000+ zadovoljnih strank"]].map(([i,t,s])=>(
+          <div key={t} style={{display:"flex",alignItems:"center",gap:16,padding:"24px 28px",background:"rgba(255,255,255,.04)"}}>
+            <span style={{fontSize:32}}>{i}</span>
+            <div>
+              <div style={{color:"#fff",fontWeight:700,fontSize:14}}>{t}</div>
+              <div style={{fontSize:12,marginTop:2}}>{s}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Links */}
+      <div style={{display:"grid",gridTemplateColumns:"2.5fr 1fr 1fr 1fr",gap:40,marginBottom:40}}>
+        <div>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <div style={{background:"var(--orange)",borderRadius:8,padding:"5px 9px"}}>
+              <span style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:800,color:"#fff"}}>S</span>
+            </div>
+            <span style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800,color:"#fff"}}>Shoop<span style={{color:"var(--orange)"}}>Slo</span></span>
+          </div>
+          <p style={{fontSize:13,lineHeight:1.8,maxWidth:300,marginBottom:20}}>Vaša zaupanja vredna spletna trgovina za vse potrebe. Kakovost, hitrost in varnost na prvem mestu.</p>
+          <div style={{display:"flex",gap:10}}>
+            {[<Facebook size={16}/>,<Instagram size={16}/>,<Youtube size={16}/>].map((ico,i)=>(
+              <div key={i} style={{width:36,height:36,background:"rgba(255,255,255,.1)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"background .2s"}}
+                onMouseEnter={e=>e.currentTarget.style.background="var(--orange)"}
+                onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,.1)"}
+              >{ico}</div>
+            ))}
+          </div>
+        </div>
+        {[
+          ["Pomoč",["Sledenje naročila","Moje naročilo","Reklamacija","Kontakt","FAQ"]],
+          ["Pravno",["Splošni pogoji","Varstvo podatkov","Piškotki","GDPR / ZVOP-2","Impressum"]],
+          ["Kategorije",["Elektronika","Dom in vrt","Moda","Gospodinjski aparati","Igrače"]],
+        ].map(([title,links])=>(
+          <div key={title}>
+            <h4 style={{color:"#fff",fontWeight:700,marginBottom:16,fontSize:14,letterSpacing:.5}}>{title}</h4>
+            {links.map(l=>(
+              <div key={l} style={{marginBottom:10,fontSize:13,cursor:"pointer",transition:"color .2s",display:"flex",alignItems:"center",gap:6}}
+                onMouseEnter={e=>e.currentTarget.style.color="#fff"}
+                onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.75)"}
+              ><ChevronRight size={11}/>{l}</div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom bar */}
+      <div style={{borderTop:"1px solid rgba(255,255,255,.1)",padding:"20px 0",display:"flex",justifyContent:"space-between",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+        <span style={{fontSize:12}}>© 2025 ShoopSlo d.o.o. · Vse pravice pridržane · DDV ID: SI98765432 · Registracija: 654321000</span>
+        <div style={{display:"flex",gap:12,alignItems:"center"}}>
+          <span style={{fontSize:12,color:"rgba(255,255,255,.5)"}}>Sprejemamo:</span>
+          {["💳","📱","🏦","💶"].map((i,k)=><span key={k} style={{fontSize:22}}>{i}</span>)}
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+const Toast = ({ msg, visible }) => (
+  <div style={{
+    position:"fixed",bottom:28,right:28,zIndex:9999,
+    background:"var(--gray-800)",color:"#fff",borderRadius:12,
+    padding:"14px 20px",fontSize:14,fontWeight:600,
+    display:"flex",alignItems:"center",gap:10,
+    boxShadow:"0 8px 32px rgba(0,0,0,.25)",
+    transform: visible?"translateY(0)":"translateY(80px)",
+    opacity: visible?1:0, transition:"all .35s ease",
+    pointerEvents:"none"
+  }}>
+    <div style={{width:24,height:24,background:"#16A34A",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+      <Check size={13}/>
+    </div>
+    {msg}
+  </div>
+);
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+export default function App() {
+  const [page, setPage]       = useState("home");
+  const [cart, setCart]       = useState([]);
+  const [wishlist, setWish]   = useState([]);
+  const [toast, setToast]     = useState({ msg:"", visible:false });
+
+  const showToast = msg => {
+    setToast({ msg, visible:true });
+    setTimeout(()=>setToast(t=>({...t,visible:false})),2200);
+  };
+
+  const addToCart = p => {
+    setCart(prev=>{
+      const ex = prev.find(i=>i.id===p.id);
+      return ex ? prev.map(i=>i.id===p.id?{...i,qty:i.qty+1}:i) : [...prev,{...p,qty:1}];
+    });
+    showToast(`${p.name.substring(0,28)}… dodano v košarico`);
+  };
+
+  const updateQty = (id,qty) => { if(qty<1){removeFromCart(id);return;} setCart(p=>p.map(i=>i.id===id?{...i,qty}:i)); };
+  const removeFromCart = id => setCart(p=>p.filter(i=>i.id!==id));
+  const clearCart = () => setCart([]);
+  const toggleWish = id => setWish(w=>w.includes(id)?w.filter(x=>x!==id):[...w,id]);
+  const cartCount = cart.reduce((s,i)=>s+i.qty,0);
+
+  const pageMap = {
+    home:     <HomePage addToCart={addToCart} wishlist={wishlist} toggleWish={toggleWish} setPage={setPage}/>,
+    shop:     <ShopPage addToCart={addToCart} wishlist={wishlist} toggleWish={toggleWish}/>,
+    cart:     <CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} setPage={setPage}/>,
+    checkout: <CheckoutPage cart={cart} clearCart={clearCart} setPage={setPage}/>,
+  };
+
+  return (
+    <>
+      <G/>
+      <Header cartCount={cartCount} wishCount={wishlist.length} setPage={setPage} page={page}/>
+      <main style={{maxWidth:1400,margin:"0 auto",padding:"28px 20px",minHeight:"70vh"}}>
+        <div key={page} className="anim-fade">
+          {pageMap[page] || pageMap.home}
+        </div>
+      </main>
+      <Footer/>
+      <Toast msg={toast.msg} visible={toast.visible}/>
+    </>
   );
 }
-
-```
