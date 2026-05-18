@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gazeta Kombëtare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.85rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.95rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .demo-credentials {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .demo-credentials h4 {
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .demo-credentials p {
+            margin: 0.25rem 0;
+            color: #666;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-link a:hover {
+            color: #764ba2;
+        }
+
+        @media (max-width: 500px) {
+            .login-header h1 {
+                font-size: 2rem;
+            }
+
+            .login-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- HEADER -->
+        <div class="login-header">
+            <h1>📰 Gazeta</h1>
+            <p>Panel Administrativ</p>
+        </div>
+
+        <!-- BODY -->
+        <div class="login-body">
+            <div class="alert alert-error" id="errorAlert"></div>
+            <div class="alert alert-info" id="infoAlert"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Emri i Administratorit</label>
+                    <input type="text" id="username" placeholder="Shënoni emrin..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Fjalëkalimi</label>
+                    <input type="password" id="password" placeholder="Shënoni fjalëkalimin..." required>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe" style="margin: 0; cursor: pointer;">Më mbaj mend</label>
+                </div>
+
+                <button type="submit" class="login-btn">🔓 Hyrje</button>
+            </form>
+
+            <!-- DEMO CREDENTIALS -->
+            <div class="demo-credentials">
+                <h4>🧪 Kredenciale Demo</h4>
+                <p><strong>Emri:</strong> admin</p>
+                <p><strong>Fjalëkalimi:</strong> admin123</p>
+            </div>
+
+            <!-- BACK LINK -->
+            <div class="back-link">
+                <a href="../">← Kthehu në Gazetën Kryesore</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const AUTH_KEY = 'gazeta_admin_auth';
+        const VALID_CREDENTIALS = {
+            username: 'admin',
+            password: 'admin123'
+        };
+
+        // CHECK IF ALREADY LOGGED IN
+        document.addEventListener('DOMContentLoaded', function() {
+            const auth = localStorage.getItem(AUTH_KEY) || sessionStorage.getItem(AUTH_KEY);
+            if (auth) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            setupLoginForm();
+        });
+
+        function setupLoginForm() {
+            const form = document.getElementById('loginForm');
+            const rememberMe = document.getElementById('rememberMe');
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+
+            // CHECK IF SAVED CREDENTIALS
+            const savedAuth = localStorage.getItem(AUTH_KEY);
+            if (savedAuth) {
+                const auth = JSON.parse(savedAuth);
+                username.value = auth.username;
+                password.value = auth.password;
+                rememberMe.checked = true;
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const enteredUsername = username.value.trim();
+                const enteredPassword = password.value.trim();
+
+                // VALIDATE CREDENTIALS
+                if (enteredUsername === VALID_CREDENTIALS.username && 
+                    enteredPassword === VALID_CREDENTIALS.password) {
+                    
+                    const authData = {
+                        username: enteredUsername,
+                        loginTime: new Date().toISOString()
+                    };
+
+                    if (rememberMe.checked) {
+                        localStorage.setItem(AUTH_KEY, JSON.stringify(authData));
+                    } else {
+                        sessionStorage.setItem(AUTH_KEY, JSON.stringify(authData));
+                    }
+
+                    // SHOW SUCCESS MESSAGE
+                    showInfo('✅ Mirë se vini në panelin administrativ!');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showError('❌ Emri ose fjalëkalimi i pasaktë!');
+                    password.value = '';
+                }
+            });
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = message;
+            alert.classList.add('show');
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        function showInfo(message) {
+            const alert = document.getElementById('infoAlert');
+            alert.textContent = message;
+            alert.classList.add('show');
+        }
+    </script>
+</body>
+</html>
